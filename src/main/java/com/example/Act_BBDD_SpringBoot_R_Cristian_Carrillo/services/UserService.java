@@ -23,4 +23,32 @@ public class UserService implements IUserService{
     public Optional<UserModel> getUserById(Long id) {
         return userRepository.findById(id);
     }
+
+    @Override
+    public UserModel saveUser(UserModel user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public UserModel editUser(UserModel userParam, Long id) {
+        UserModel user = userRepository.findById(id).get();
+        user.setName(userParam.getName());
+        user.setLastname(userParam.getLastname());
+        user.setEmail(userParam.getEmail());
+        user.setPassword(userParam.getPassword());
+        user.setProfile(userParam.getProfile());
+        user.setUsername(userParam.getUsername());
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public Boolean deleteUser(Long id) {
+        try{
+            userRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
