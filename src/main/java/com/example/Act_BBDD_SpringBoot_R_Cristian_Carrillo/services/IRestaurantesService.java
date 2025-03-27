@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface IRestaurantesService {
     ArrayList<RestaurantesModel> getRestaurantes();
     Optional<RestaurantesModel> getRestauranteById(Long id);
+    RestaurantesModel saveRestaurante (RestaurantesModel restaurante);
+    RestaurantesModel editRestaurante (RestaurantesModel restaurante, Long id);
+    Boolean deleteRestaurante (Long id);
 }

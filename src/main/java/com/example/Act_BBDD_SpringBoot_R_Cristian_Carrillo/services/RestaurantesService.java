@@ -22,4 +22,30 @@ public class RestaurantesService implements IRestaurantesService{
     public Optional<RestaurantesModel> getRestauranteById(Long id) {
         return restaurantesRepository.findById(id);
     }
+
+    @Override
+    public RestaurantesModel saveRestaurante(RestaurantesModel restaurante) {
+        return restaurantesRepository.save(restaurante);
+    }
+
+    @Override
+    public RestaurantesModel editRestaurante(RestaurantesModel restaurante, Long id) {
+        RestaurantesModel rest = restaurantesRepository.findById(id).get();
+        rest.setNombre(restaurante.getNombre());
+        rest.setDescripcion(restaurante.getDescripcion());
+        rest.setUbicacion(restaurante.getUbicacion());
+        rest.setPropietario(restaurante.getPropietario());
+        restaurantesRepository.save(rest);
+        return restaurante;
+    }
+
+    @Override
+    public Boolean deleteRestaurante(Long id) {
+        try{
+            restaurantesRepository.deleteById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
