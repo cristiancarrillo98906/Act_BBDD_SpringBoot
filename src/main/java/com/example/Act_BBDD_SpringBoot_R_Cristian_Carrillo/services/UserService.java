@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -30,34 +33,98 @@ public class UserService implements IUserService{
 
     @Override
     public UserModel saveUser(UserModel user) {
-        System.out.println("Contraseña recibida: " + user.getPassword());
+        UserModel usuarioNuevo = null;
+        if (user.getPassword().length() > 8) {
+            boolean mayuscula = false;
+            boolean numero = false;
+            boolean letraOsimbolo = false;
+            boolean especial = false;
 
-        if (!contrasenyaValida(user.getPassword())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña no cumple con los requisitos de seguridad.");
-        }
-        return userRepository.save(user);
-    }
+            Pattern special = Pattern.compile("[?!¡@¿.,´)]");
+            Matcher hasSpecial = special.matcher(user.getPassword());
+            char l;
 
-    public Boolean contrasenyaValida(String password){
-        if (password == null || password.isEmpty()) {
-            return false;
-        }
+            for (int i = 0; i < user.getPassword().length(); i++) {
+                l = user.getPassword().charAt(i);
 
-        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[?!¡@¿.,´)]).{8,}$";
-        return password.matches(regex);
+                if (Character.isDigit(l)) {
+                    numero = true;
+                }
+                if (Character.isLetter(l)) {
+                    letraOsimbolo = true;
+                }
+                if (Character.isUpperCase(l)) {
+                    mayuscula = true;
+                }
+                if (hasSpecial.find()) {
+                    especial = true;
+                }
+            }
+
+            if (numero && mayuscula && letraOsimbolo && especial) {
+                ArrayList<UserModel> usuario = this.getUsers();
+                for (UserModel users : usuario) {
+                    if (user.getUsername().equalsIgnoreCase(users.getUsername())) {
+                        System.out.println("Ya existe");
+                        return null;
+                    }
+                }
+                userRepository.save(user);
+                usuarioNuevo = user;
+            }
+
+        } else {
+                System.out.println("La contraseña no cumple con lo mínimo requerido");
+            }
+        return usuarioNuevo;
     }
 
     @Override
     public UserModel editUser(UserModel userParam, Long id) {
-        UserModel user = userRepository.findById(id).get();
-        user.setName(userParam.getName());
-        user.setLastname(userParam.getLastname());
-        user.setEmail(userParam.getEmail());
-        user.setPassword(userParam.getPassword());
-        user.setProfile(userParam.getProfile());
-        user.setUsername(userParam.getUsername());
-        userRepository.save(user);
-        return user;
+        UserModel usuarioEditado = null;
+        if (userParam.getPassword().length() > 8) {
+            boolean mayuscula = false;
+            boolean numero = false;
+            boolean letraOsimbolo = false;
+            boolean especial = false;
+
+            Pattern special = Pattern.compile("[?!¡@¿.,´)]");
+            Matcher hasSpecial = special.matcher(userParam.getPassword());
+            char l;
+
+            for (int i = 0; i < userParam.getPassword().length(); i++) {
+                l = userParam.getPassword().charAt(i);
+
+                if (Character.isDigit(l)) {
+                    numero = true;
+                }
+                if (Character.isLetter(l)) {
+                    letraOsimbolo = true;
+                }
+                if (Character.isUpperCase(l)) {
+                    mayuscula = true;
+                }
+                if (hasSpecial.find()) {
+                    especial = true;
+                }
+            }
+
+            if (numero && mayuscula && letraOsimbolo && especial) {
+                ArrayList<UserModel> usuario = this.getUsers();
+                UserModel user = userRepository.findById(id).get();
+                user.setName(userParam.getName());
+                user.setLastname(userParam.getLastname());
+                user.setEmail(userParam.getEmail());
+                user.setPassword(userParam.getPassword());
+                user.setProfile(userParam.getProfile());
+                user.setUsername(userParam.getUsername());
+                userRepository.save(user);
+                usuarioEditado =user;
+            }
+        } else {
+            System.out.println("La contraseña no cumple con lo mínimo requerido");
+        }
+        return usuarioEditado;
     }
 
     @Override
