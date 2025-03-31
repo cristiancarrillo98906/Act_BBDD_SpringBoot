@@ -3,10 +3,14 @@ package com.example.Act_BBDD_SpringBoot_R_Cristian_Carrillo.services;
 import com.example.Act_BBDD_SpringBoot_R_Cristian_Carrillo.models.UserModel;
 import com.example.Act_BBDD_SpringBoot_R_Cristian_Carrillo.repositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService implements IUserService{
@@ -26,7 +30,21 @@ public class UserService implements IUserService{
 
     @Override
     public UserModel saveUser(UserModel user) {
+        System.out.println("Contraseña recibida: " + user.getPassword());
+
+        if (!contrasenyaValida(user.getPassword())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña no cumple con los requisitos de seguridad.");
+        }
         return userRepository.save(user);
+    }
+
+    public Boolean contrasenyaValida(String password){
+        if (password == null || password.isEmpty()) {
+            return false;
+        }
+
+        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[?!¡@¿.,´)]).{8,}$";
+        return password.matches(regex);
     }
 
     @Override
